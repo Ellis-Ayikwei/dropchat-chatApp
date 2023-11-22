@@ -11,13 +11,17 @@ const {username, room } = Qs.parse(location.search,{
 
 
 
-const socket=io();
+const socket = io();
+socket.on('connect', () => {
+    console.log('Connected to server');
+  })
 
 socket.emit('joinroom', {username, room})
 
 
 
 socket.on('roomusers', ({room, users}) => {
+    console.log('Room name: ', room);
     outpuRomname(room);
     outputUsers(users);
 })
@@ -27,7 +31,8 @@ socket.on('roomusers', ({room, users}) => {
 
 
 socket.on('message', message =>{
-    console.log(message);
+    console.log('Received message:', message);
+    
     outputmessage(message);
 
 
@@ -47,6 +52,7 @@ chatform.addEventListener('submit', (e) => {
     const msg = e.target.elements.msg.value;
 
     socket.emit('chatMessage', msg);
+    
 
     //clear the inout 
 
@@ -55,8 +61,15 @@ chatform.addEventListener('submit', (e) => {
 })
 
 
+
 //output message 
 function outputmessage(message){
+
+
+    const frag = document.createDocumentFragment();
+
+   
+
     const div =document.createElement('div');
     div.classList.add("message");
 
@@ -70,12 +83,10 @@ function outputmessage(message){
 
 
     div.innerHTML=`<p class="meta">${displayedUsername}  <span class="time"> ${message.time} </span></p><h3 class="text">${message.text}</h3>`;
-    document.querySelector('.chat-messages').appendChild(div);
+    frag.appendChild(div);
+    document.querySelector('.chat-messages').appendChild(frag);
 
-
-    // if (displayedUsername === "Me") {
-    //     div.style.cssText = 'float: right;  color: #fff; font-size: small;';
-    // }
+   
 
 }
 
@@ -84,7 +95,6 @@ function outputmessage(message){
 
 
 
-// Check if the user type is "admin"
 
 
 
